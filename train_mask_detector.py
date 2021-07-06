@@ -18,7 +18,6 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
@@ -44,7 +43,7 @@ BS = 32
 # grab the list of images in our dataset directory, then initialize
 # the list of data (i.e., images) and class images
 print("[INFO] loading images...")
-imagePaths = list(paths.list_images(args["dataset"]))
+imagePaths = os.listdir(args["dataset"])
 data = []
 labels = []
 
