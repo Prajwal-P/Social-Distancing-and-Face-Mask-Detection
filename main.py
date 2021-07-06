@@ -133,11 +133,15 @@ while (cap.isOpened()):
             face = np.expand_dims(face, axis=0)
 
             (mask, without_mask) = maskNet.predict(face)[0]
-            # if mask > 0.4: "mask"
-            # elif without_mask > 0.4: "without_mask"
-            # else: "improperly worn"
-            label = "Mask" if mask > without_mask else "No Mask"
-            color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+
+            if abs(mask - without_mask) < 0.9:
+                label = "Improperly worn"
+                color = (0, 255, 255)
+            else:
+                label = "Mask" if mask > without_mask else "No Mask"
+                color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+
+            print(abs(mask - without_mask))
 
             label = "{}: {:.2f}%".format(label, max(mask, without_mask) * 100)
             cv2.putText(image, label, (startX, startY - 10),
