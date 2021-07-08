@@ -2,8 +2,7 @@
 # $ conda create --name <env> -c conda-forge --file requirements.txt
 autopep8
 matplotlib
-numpy
 opencv
 scikit-learn
 scipy
-tensorflow
+tensorflow==2.5.0
