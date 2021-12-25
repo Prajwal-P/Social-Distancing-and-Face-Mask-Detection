@@ -7,6 +7,13 @@ from modules.detection import detect_people
 from scipy.spatial import distance as dist
 from modules.config import camera_no
 
+from PIL import ImageEnhance, Image
+
+
+def adjust(input_image, factor):
+    enhancer_object = ImageEnhance.Sharpness(input_image)
+    return enhancer_object.enhance(factor)
+
 
 labelsPath = "yolo-coco/coco.names"
 LABELS = open(labelsPath).read().strip().split("\n")
@@ -127,8 +134,20 @@ while (cap.isOpened()):
             face = image[startY:endY, startX:endX]
             face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
             face = cv2.resize(face, (224, 224))
+            cv2.imshow("Face" + str(i), face)
+
+            sharpen_kernel = np.array(
+                [[-1, -1, -1],
+                 [1, 9, -1],
+                 [-2, -1, -1]])
+            face = cv2.filter2D(face, -1, sharpen_kernel)
+            cv2.imshow('sharpen I', face)
+            face = cv2.addWeighted(face, 2, face, -0.9, -7)
+            cv2.imshow('sharpen II', face)
             face = img_to_array(face)
+
             face = preprocess_input(face)
+            cv2.imshow("Face I", face)
             # Expand dimentions - converting 1D to 2D
             face = np.expand_dims(face, axis=0)
 
