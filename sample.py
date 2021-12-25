@@ -1,15 +1,14 @@
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import load_model
-import numpy as np
-import cv2
 from modules.detection import detect_people
 from scipy.spatial import distance as dist
-from modules.config import camera_no
+import numpy as np
+import cv2
+import os
 
 labelsPath = "yolo-coco/coco.names"
 LABELS = open(labelsPath).read().strip().split("\n")
-np.random.seed(42)
 
 weightsPath = "yolo-coco/yolov3.weights"
 configPath = "yolo-coco/yolov3.cfg"
@@ -37,16 +36,10 @@ faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 model_store_dir = "models/classifier.model"
 maskNet = load_model(model_store_dir)
 
-cap = cv2.VideoCapture(camera_no)  # Start Video Streaming
-while (cap.isOpened()):
-    ret, image = cap.read()
-
-    if ret == False:
-        break
-
+for path in os.listdir('sample_dataset'):
+    imgpath = os.path.join('sample_dataset', path)
+    image = cv2.imread(imgpath)
     image = cv2.resize(image, (720, 640))
-    # cv2.namedWindow("output", cv2.WINDOW_NORMAL)
-
     (H, W) = image.shape[:2]
     ln = net.getLayerNames()
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
@@ -81,7 +74,7 @@ while (cap.isOpened()):
                     serious.add(i)
                     serious.add(j)
                 # update our abnormal set if the centroid distance is below max distance limit
-                if (D[i, j] < 450) and not serious:
+                if (D[i, j] < 500) and not serious:
                     abnormal.add(i)
                     abnormal.add(j)
 
@@ -141,29 +134,20 @@ while (cap.isOpened()):
             cv2.putText(image, label, (startX, startY - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
             cv2.rectangle(image, (startX, startY), (endX, endY), color, 1)
-            # text = "Total serious violations: {}".format(len(serious))
+            text = "Total serious violations: {}".format(len(serious))
             # cv2.putText(image, text,
             #             (10, image.shape[0] - 55),
             #             cv2.FONT_HERSHEY_SIMPLEX, 0.70,
             #             (0, 0, 255), 2)
 
-            # text1 = "Total abnormal violations: {}".format(len(abnormal))
-            text1 = "Total violations: {}".format(
-                max(len(serious), len(abnormal)))
-            cv2.putText(image, text1,
-                        (10, image.shape[0] - 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.70,
-                        (0, 255, 255), 2)
+            text1 = "Total abnormal violations: {}".format(len(abnormal))
+            # cv2.putText(image, text1,
+            #             (10, image.shape[0] - 25),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.70,
+            #             (0, 255, 255), 2)
 
             print("End of classifier")
 
-    # imS = cv2.resize(image, (960, 540))
-    # ver = np.vconcat([image, ig])
-    cv2.imshow("Image", image)
-    # cv2.imshow("Face", x)
-    # cv2.imshow("Face", label)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+    cv2.imwrite(os.path.join('output', path), image)
+    # cv2.imshow('image', image)
+    cv2.waitKey(0)

@@ -21,7 +21,7 @@ for folders in os.listdir('./dataset2'):
         copy = cv2.resize(copy, (224, 224))
         copy = img_to_array(copy)
         copy = preprocess_input(copy)
-        # Expand dimentions - converting 1D to 2D
+        # Expand dimensions - converting 1D to 2D
         copy = np.expand_dims(copy, axis=0)
 
         (mask, without_mask) = maskNet.predict(copy)[0]
